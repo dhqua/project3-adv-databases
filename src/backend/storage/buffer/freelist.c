@@ -202,9 +202,25 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 	// need to test code to see if it using the GetBufferRing by default or the clock system below it
 	if (strategy != NULL)
 	{
+		// debugging strategy
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
 		buf = GetBufferFromRing(strategy, buf_state);
 		if (buf != NULL)
+		{
+			// Added to log when a buffer is removed from the list
+			elog(LOG, "Get buf %d\n", buf->buf_id);
 			return buf;
+		}
 	}
 
 	/*
@@ -358,6 +374,10 @@ void
 StrategyFreeBuffer(BufferDesc *buf)
 {
 	SpinLockAcquire(&StrategyControl->buffer_strategy_lock);
+
+	// Add logs to detected when buffers are added to the free list
+	elog(LOG, "Add buf %d\n", buf->buf_id);
+
 
 	/*
 	 * It is possible that we are told to put something in the freelist that
