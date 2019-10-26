@@ -209,18 +209,34 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 	 * assume strategy objects don't need buffer_strategy_lock.
 	 */
 
-	// need to test code to see if it using the GetBufferRing by default or the clock system below it
 	if (strategy != NULL)
 	{
-		// debugging strategy
-		// elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		buf = GetBufferFromRing(strategy, buf_state);
-		if (buf != NULL)
+		//buf = GetBufferFromRing(strategy, buf_state);
+
+		/*
+		 * This code dequeues a buffer from the front of the free list
+		 */
+		buf = StrategyControl->q_front;
+		StrategyControl->q_front = StrategyControl->q_front->next;
+
+
+		/*
+		* If the buffer is pinned we cannot use it under any circumstances.
+		* The boilerplate code was copied over from the GetBufferFromRing function for consistency
+		* if the buffer is not null and it is not pinned
+		*/
+		local_buf_state = LockBufHdr(buf);
+		if (buf != NULL && BUF_STATE_GET_REFCOUNT(local_buf_state) == 0)
 		{
 			// Added to log when a buffer is removed from the list
 			elog(LOG, "Get buf %d\n", buf->buf_id);
+			*buf_state = local_buf_state;
 			return buf;
 		}
+		UnlockBufHdr(buf, local_buf_state);
+		return NULL;
+
+
 	}
 
 	/*
