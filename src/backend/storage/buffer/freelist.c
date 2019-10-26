@@ -229,7 +229,7 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 		if (buf != NULL && BUF_STATE_GET_REFCOUNT(local_buf_state) == 0)
 		{
 			// Added to log when a buffer is removed from the list
-			elog(LOG, "Get buf %d\n", buf->buf_id);
+			elog(LOG, "Get buf %d", buf->buf_id);
 			*buf_state = local_buf_state;
 			return buf;
 		}
@@ -392,7 +392,7 @@ StrategyFreeBuffer(BufferDesc *buf)
 	SpinLockAcquire(&StrategyControl->buffer_strategy_lock);
 
 	// Add logs to detected when buffers are added to the free list
-	elog(LOG, "Add buf %d\n", buf->buf_id);
+	elog(LOG, "Add buf %d", buf->buf_id);
 
 	// The last node should always point to null to prevent loops
 	buf->next = NULL;
