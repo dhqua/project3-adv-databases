@@ -190,8 +190,8 @@ typedef struct BufferDesc
 	 * Qua Thomas
 	 * Adds pointers to buffer desc to be used as doubly linked list
 	 */
-	BufferDesc *prev;
-	BufferDesc *next;
+	struct BufferDesc *prev;
+	struct BufferDesc *next;
 
 	LWLock		content_lock;	/* to lock access to buffer contents */
 } BufferDesc;
