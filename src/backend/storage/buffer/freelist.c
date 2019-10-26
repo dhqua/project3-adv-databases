@@ -214,10 +214,26 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 		//buf = GetBufferFromRing(strategy, buf_state);
 
 		/*
+		 * Qua Thomas
 		 * This code dequeues a buffer from the front of the free list
+		 * 
+		 * Assumptions: there may be items in the free list that are pinned
+		 * so pop until the refcount is 0 or buf is null
 		 */
-		buf = StrategyControl->q_front;
-		StrategyControl->q_front = StrategyControl->q_front->next;
+		while(buf != NULL)
+		{
+			buf = StrategyControl->q_front;
+			StrategyControl->q_front = buf->next; 
+
+			local_buf_state = LockBufHdr(buf);
+			if(buf != NULL && BUF_STATE_GET_REFCOUNT(local_buf_state) ==0)
+			{
+				// Added to log when a buffer is removed from the list
+				elog(LOG, "Get buf %d", buf->buf_id);
+				*buf_state = local_buf_state;
+				return buf;
+			}
+		}
 
 
 		/*
@@ -225,7 +241,7 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 		* The boilerplate code was copied over from the GetBufferFromRing function for consistency
 		* if the buffer is not null and it is not pinned
 		*/
-		local_buf_state = LockBufHdr(buf);
+		/*
 		if (buf != NULL && BUF_STATE_GET_REFCOUNT(local_buf_state) == 0)
 		{
 			// Added to log when a buffer is removed from the list
@@ -233,10 +249,10 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 			*buf_state = local_buf_state;
 			return buf;
 		}
+		*/
+
 		UnlockBufHdr(buf, local_buf_state);
 		return NULL;
-
-
 	}
 
 	/*
