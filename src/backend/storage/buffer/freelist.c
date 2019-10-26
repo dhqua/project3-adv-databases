@@ -198,6 +198,8 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 	 * If given a strategy object, see whether it can select a buffer. We
 	 * assume strategy objects don't need buffer_strategy_lock.
 	 */
+
+	// need to test code to see if it using the GetBufferRing by default or the clock system below it
 	if (strategy != NULL)
 	{
 		buf = GetBufferFromRing(strategy, buf_state);
@@ -361,6 +363,8 @@ StrategyFreeBuffer(BufferDesc *buf)
 	 * It is possible that we are told to put something in the freelist that
 	 * is already in it; don't screw up the list if so.
 	 */
+
+	// This code is maintaing the clock structure, it can be simplified
 	if (buf->freeNext == FREENEXT_NOT_IN_LIST)
 	{
 		buf->freeNext = StrategyControl->firstFreeBuffer;
