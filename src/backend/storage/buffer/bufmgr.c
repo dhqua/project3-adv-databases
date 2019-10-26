@@ -1760,6 +1760,14 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 			else
 				UnlockBufHdr(buf, buf_state);
 		}
+		/*
+		 * Qua Thomas
+		 * If the ref count falls to zero then add page to the free list
+		 * 
+		 */ 
+		StrategyFreeBuffer(buf);
+
+
 		ForgetPrivateRefCountEntry(ref);
 	}
 }
