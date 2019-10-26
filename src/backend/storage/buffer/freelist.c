@@ -40,6 +40,15 @@ typedef struct
 
 	// Add queue here to use instead of clock sweep hand
 	// add head and tail of the queue here
+	/*
+	 * Qua Thomas
+	 * Pointers representing the front and back of the queue
+	 * They are used in the StrategyBuffer functions later in the file 
+	 * Pointers initialzied in StrategyInitialize function
+	 */
+	BufferDesc *q_front;
+	BufferDesc *q_back;
+
 
 	int			firstFreeBuffer;	/* Head of list of unused buffers */
 	int			lastFreeBuffer; /* Tail of list of unused buffers */
@@ -523,6 +532,14 @@ StrategyInitialize(bool init)
 
 
 		// Add queue initialization here after the initial strategy stucture is initilized
+		/*
+		 * Qua Thomas
+		 * Sets the front of the queue to be the first empty frame 
+		 * Sets the back of the queu to be the last empty queue
+		 * Assumption: this step is completed before the system starts to use the buffers so the constants should be fine
+		 */
+		StrategyControl->q_front = GetBufferDescriptor(0);
+		StrategyControl->q_back = GetBufferDescriptor(NBuffers -1);
 
 		/* Initialize the clock sweep pointer */
 		pg_atomic_init_u32(&StrategyControl->nextVictimBuffer, 0);
