@@ -132,12 +132,17 @@ InitBufferPool(void)
 			 */
 			buf->freeNext = i + 1;
 
-			// psuedo code to build the linked list
 			/*
+			 * Qua Thomas
+			 * This codes connects the linked list with all of the buffers
+			 * This makes sense since all of the buffers start as free
+			 */
 			if(i != 0)
-			buf->prev = GetBuffdesc (i -1);
-			buf->prev->next = buf
-			*/
+			{
+				buf->prev = GetBufferDescriptor(i -1);
+				buf->prev->next = buf;
+
+			}
 
 			LWLockInitialize(BufferDescriptorGetContentLock(buf),
 							 LWTRANCHE_BUFFER_CONTENT);
