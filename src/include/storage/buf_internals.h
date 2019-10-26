@@ -186,11 +186,12 @@ typedef struct BufferDesc
 	int			wait_backend_pid;	/* backend PID of pin-count waiter */
 	int			freeNext;		/* link in freelist chain */
 
-	// add linked list prev and next pointers here
 	/*
+	 * Qua Thomas
+	 * Adds pointers to buffer desc to be used as doubly linked list
+	 */
 	BufferDesc *prev;
 	BufferDesc *next;
-	*/
 
 	LWLock		content_lock;	/* to lock access to buffer contents */
 } BufferDesc;
