@@ -144,6 +144,9 @@ InitBufferPool(void)
 	}
 
 	/* Init other shared buffer-management stuff */
+	// This is where the postgres team initializes the strategy object
+	// If I make any changes to the strategy control structure, I need to also add code
+	// inside of the the stategy initialize function to prevent errors
 	StrategyInitialize(!foundDescs);
 
 	/* Initialize per-backend file flush context */

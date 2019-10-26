@@ -38,6 +38,8 @@ typedef struct
 	 */
 	pg_atomic_uint32 nextVictimBuffer;
 
+	// Add queue here to use instead of clock sweep hand
+
 	int			firstFreeBuffer;	/* Head of list of unused buffers */
 	int			lastFreeBuffer; /* Tail of list of unused buffers */
 
@@ -109,6 +111,10 @@ static void AddBufferToRing(BufferAccessStrategy strategy,
  * Move the clock hand one buffer ahead of its current position and return the
  * id of the buffer now under the hand.
  */
+
+// Understand what this function is returning to make sure the new replacement returns similar info
+// This function is returning a buffer id to be passed to another function
+// As a result when I implement the queue it can just be a queue of buffer ids
 static inline uint32
 ClockSweepTick(void)
 {
@@ -299,6 +305,7 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 	trycounter = NBuffers;
 	for (;;)
 	{
+		// Replace this line with one that uses the queue instead
 		buf = GetBufferDescriptor(ClockSweepTick());
 
 		/*
@@ -324,6 +331,8 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 				return buf;
 			}
 		}
+		// try counters is used for clock algo
+		// replace this line with one that checks if queue is empty
 		else if (--trycounter == 0)
 		{
 			/*
@@ -478,6 +487,9 @@ StrategyInitialize(bool init)
 		ShmemInitStruct("Buffer Strategy Status",
 						sizeof(BufferStrategyControl),
 						&found);
+
+	// Add queue initialization here after the initial strategy stucture is initilized
+
 
 	if (!found)
 	{
