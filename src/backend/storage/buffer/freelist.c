@@ -394,13 +394,17 @@ StrategyFreeBuffer(BufferDesc *buf)
 	// Add logs to detected when buffers are added to the free list
 	elog(LOG, "Add buf %d\n", buf->buf_id);
 
-
+	// The last node should always point to null to prevent loops
+	buf->next = NULL;
+	buf->prev = StrategyControl->q_back;
+	StrategyControl->q_back->next = buf;
+	StrategyControl->q_back = StrategyControl->q_back->next;
 	/*
 	 * It is possible that we are told to put something in the freelist that
 	 * is already in it; don't screw up the list if so.
 	 */
 
-	// This code is maintaing the clock structure, it can be simplified
+	/* Commenting out clock implementation
 	if (buf->freeNext == FREENEXT_NOT_IN_LIST)
 	{
 		buf->freeNext = StrategyControl->firstFreeBuffer;
@@ -408,6 +412,7 @@ StrategyFreeBuffer(BufferDesc *buf)
 			StrategyControl->lastFreeBuffer = buf->buf_id;
 		StrategyControl->firstFreeBuffer = buf->buf_id;
 	}
+	*/
 
 	SpinLockRelease(&StrategyControl->buffer_strategy_lock);
 }
