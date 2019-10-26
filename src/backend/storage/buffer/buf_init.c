@@ -132,6 +132,13 @@ InitBufferPool(void)
 			 */
 			buf->freeNext = i + 1;
 
+			// psuedo code to build the linked list
+			/*
+			if(i != 0)
+			buf->prev = GetBuffdesc (i -1);
+			buf->prev->next = buf
+			*/
+
 			LWLockInitialize(BufferDescriptorGetContentLock(buf),
 							 LWTRANCHE_BUFFER_CONTENT);
 

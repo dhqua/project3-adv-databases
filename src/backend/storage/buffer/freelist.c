@@ -39,6 +39,7 @@ typedef struct
 	pg_atomic_uint32 nextVictimBuffer;
 
 	// Add queue here to use instead of clock sweep hand
+	// add head and tail of the queue here
 
 	int			firstFreeBuffer;	/* Head of list of unused buffers */
 	int			lastFreeBuffer; /* Tail of list of unused buffers */
@@ -203,17 +204,7 @@ StrategyGetBuffer(BufferAccessStrategy strategy, uint32 *buf_state)
 	if (strategy != NULL)
 	{
 		// debugging strategy
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
-		elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
+		// elog(LOG, "STRATEGY IS NOT NULL!!!!!!!!!!!!");
 		buf = GetBufferFromRing(strategy, buf_state);
 		if (buf != NULL)
 		{
@@ -512,7 +503,6 @@ StrategyInitialize(bool init)
 						sizeof(BufferStrategyControl),
 						&found);
 
-	// Add queue initialization here after the initial strategy stucture is initilized
 
 
 	if (!found)
@@ -530,6 +520,9 @@ StrategyInitialize(bool init)
 		 */
 		StrategyControl->firstFreeBuffer = 0;
 		StrategyControl->lastFreeBuffer = NBuffers - 1;
+
+
+		// Add queue initialization here after the initial strategy stucture is initilized
 
 		/* Initialize the clock sweep pointer */
 		pg_atomic_init_u32(&StrategyControl->nextVictimBuffer, 0);
