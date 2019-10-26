@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "/home/postgresql/project3"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"bufmgr.h": "c",
+			"rel.h": "c"
+		}
+	}
+}
