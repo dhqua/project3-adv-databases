@@ -1625,6 +1625,14 @@ PinBuffer(BufferDesc *buf, BufferAccessStrategy strategy)
 		result = true;
 	}
 
+	/*
+	 *Qua Thomas
+	 * Test if the the item is in the free list, if it is log
+	 * don't worry about removing since it is handled by strategy get buffer
+	 */ 
+	//  if(ref->refcount == 0)
+		//  elog(LOG, "Get buf %d", buf->buf_id);
+	
 	ref->refcount++;
 	Assert(ref->refcount > 0);
 	ResourceOwnerRememberBuffer(CurrentResourceOwner, b);
@@ -1715,6 +1723,13 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 		Assert(!LWLockHeldByMe(BufferDescriptorGetIOLock(buf)));
 
 		/*
+		 * Qua Thomas
+		 * If the ref count falls to zero then add page to the free list
+		 * 
+		 */ 
+		StrategyFreeBuffer(buf);
+
+		/*
 		 * Decrement the shared reference count.
 		 *
 		 * Since buffer spinlock holder can update status using just write,
@@ -1760,12 +1775,6 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 			else
 				UnlockBufHdr(buf, buf_state);
 		}
-		/*
-		 * Qua Thomas
-		 * If the ref count falls to zero then add page to the free list
-		 * 
-		 */ 
-		StrategyFreeBuffer(buf);
 
 
 		ForgetPrivateRefCountEntry(ref);
