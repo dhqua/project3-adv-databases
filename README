@@ -1,27 +1,60 @@
-PostgreSQL Database Management System
-=====================================
+Advanced Database Systems - Project 3 Buffer Management Rewrite
+Qua'on Thomas
 
-This directory contains the source code distribution of the PostgreSQL
-database management system.
+Goal
+==================================
+The goal of this project was to change the buffer replacement policy in postgrsql. 
+The orginal source code uses a clock sweep algorithm and we were tasked with studying the code
+and making necessary changes to implement the Least Recently Used replacement strategy.
 
-PostgreSQL is an advanced object-relational database management system
-that supports an extended subset of the SQL standard, including
-transactions, foreign keys, subqueries, triggers, user-defined types
-and functions.  This distribution also contains C language bindings.
+Note To TA
+==================================
+Every section of code that I modified from the original postgres source code is preceded by a comment similar to the one below.
+you can either find my modificatins by searching my name or refer to the provided line numbers below
 
-PostgreSQL has many language interfaces, many of which are listed here:
+/*
+ * Qua Thomas
+ *
+ *Describes the statement or function
+ */
 
-	https://www.postgresql.org/download
 
-See the file INSTALL for instructions on how to build and install
-PostgreSQL.  That file also lists supported operating systems and
-hardware platforms and contains information regarding any other
-software packages that are required to build or run the PostgreSQL
-system.  Copyright and license information can be found in the
-file COPYRIGHT.  A comprehensive documentation set is included in this
-distribution; it can be read as described in the installation
-instructions.
+Files modified : Lines Modified
+==================================
+buf_internals.h : 189-194
+buf_init.c      : 135-147, 162-169
+bufmgr.c        : 1766- 1771
+freelist.c      : 41-48, 206-218, 272-324, 329-378, 390-435, 575-582
 
-The latest version of this software may be obtained at
-https://www.postgresql.org/download/.  For more information look at our
-web site located at https://www.postgresql.org/.
+Approach descriptions
+==================================
+
+buf_internals: in the buffer description I added BufferDesc pointers prev and next, so that 
+the the buffers could be connected in a doubly linked list, to be used as a queue
+
+buf_init.c: I initilized the linked list by connecting all of the empty frames during the buffer pool setup
+
+bufmgr.c: Inside of the Unpin function, I do a call to the StrategyFreeBuffer function 
+if the reference count falls to zero, which adds it back to the queue of possbible victims
+
+freelist.c: 
+-I added pointers in the BufferStrategy control struct to act as the front and back of the queue
+
+-In cases where postgres does large sequential reads, it defaults to a Ring system that uses the
+same buffers over and over, so I commented out the section that triggers this response
+
+- The default strategy used by postgres is the clock sweep algo so I commented out the section that implements this behavior
+
+-I replaced the clock sweep algorithim with the following
+     ----------LRU ALGORITHIM BELOW --------
+    1.Loop until valid victim is found or queue is empty
+    2.Pop a buffer from the queue, if queue is empty, all buffers are pinned throw an error
+    3.Ensure the ref count is zero, if so log the buffer and return it
+    4. If the ref count is not zero(because another process could have pinned it after it was added to the list), return to step 2 and repeat 
+
+-In the StrategyFreeBuffer function, given a buffer I check if it is already in the list, if so I ignore it, if not 
+I log the buffer and then push it to the queue. This was a trade off, initially I would remove the buffer if it was already 
+in the list, however this lead to unwanted looping through the free list and premataure reports that the queue was empty
+
+-As mentioned earlier all of the empty frames are connected when they are intialized so I initialize the origial queue
+by pointing the front pointer at the first, and last available frames because their orders haven't been affected yet
