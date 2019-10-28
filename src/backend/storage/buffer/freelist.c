@@ -447,7 +447,7 @@ StrategyFreeBuffer(BufferDesc *buf)
 	bool inListAlready = false;
 	while(cursor != NULL)
 	{
-		// If buffer is already in the free list then remove it
+		// If buffer is already in the free list then set flag
 		if(cursor->buf_id == buf->buf_id )
 		{
 
