@@ -144,6 +144,10 @@ InitBufferPool(void)
 
 			}
 
+
+
+			// elog(LOG, "\n\n\nINITIALIZED BUFFER: %d\n\n\n", buf->buf_id);
+
 			LWLockInitialize(BufferDescriptorGetContentLock(buf),
 							 LWTRANCHE_BUFFER_CONTENT);
 
@@ -151,14 +155,25 @@ InitBufferPool(void)
 							 LWTRANCHE_BUFFER_IO_IN_PROGRESS);
 		}
 
+		// BufferDesc *temp = GetBufferDescriptor(1);
+		// elog(LOG,"\n\n\n\n\n------------------------\nQueue Printout Here");
+		// while(temp != NULL)
+		// {
+		// 	elog(LOG, "BUFFER: %d ------> %d", temp->prev->buf_id , temp->buf_id);
+		// 	temp= temp->next;
+		// }
+
 		/* Correct last entry of linked list */
 		GetBufferDescriptor(NBuffers - 1)->freeNext = FREENEXT_END_OF_LIST;
 	}
 
-	/* Init other shared buffer-management stuff */
-	// This is where the postgres team initializes the strategy object
-	// If I make any changes to the strategy control structure, I need to also add code
-	// inside of the the stategy initialize function to prevent errors
+	/* Init other shared buffer-management stuff 
+	*
+	* Qua Thomas
+	* This is where the postgres team initializes the strategy object
+	* If I make any changes to the strategy control structure, I need to also add code
+	* inside of the the stategy initialize function to prevent errors
+	*/
 	StrategyInitialize(!foundDescs);
 
 	/* Initialize per-backend file flush context */

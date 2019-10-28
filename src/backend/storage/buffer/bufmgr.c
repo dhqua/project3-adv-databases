@@ -1722,12 +1722,6 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 		Assert(!LWLockHeldByMe(BufferDescriptorGetContentLock(buf)));
 		Assert(!LWLockHeldByMe(BufferDescriptorGetIOLock(buf)));
 
-		/*
-		 * Qua Thomas
-		 * If the ref count falls to zero then add page to the free list
-		 * 
-		 */ 
-		StrategyFreeBuffer(buf);
 
 		/*
 		 * Decrement the shared reference count.
@@ -1744,7 +1738,6 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 			buf_state = old_buf_state;
 
 			buf_state -= BUF_REFCOUNT_ONE;
-
 			if (pg_atomic_compare_exchange_u32(&buf->state, &old_buf_state,
 											   buf_state))
 				break;
@@ -1762,6 +1755,7 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 			 */
 			buf_state = LockBufHdr(buf);
 
+
 			if ((buf_state & BM_PIN_COUNT_WAITER) &&
 				BUF_STATE_GET_REFCOUNT(buf_state) == 1)
 			{
@@ -1775,6 +1769,14 @@ UnpinBuffer(BufferDesc *buf, bool fixOwner)
 			else
 				UnlockBufHdr(buf, buf_state);
 		}
+
+		
+		/*
+		* Qua Thomas
+		* If the ref count falls to zero then add page to the free list
+		* 
+		*/ 
+		StrategyFreeBuffer(buf);
 
 
 		ForgetPrivateRefCountEntry(ref);
