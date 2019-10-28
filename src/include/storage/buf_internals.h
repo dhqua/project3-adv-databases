@@ -188,7 +188,7 @@ typedef struct BufferDesc
 
 	/*
 	 * Qua Thomas
-	 * Adds pointers to buffer desc to be used as doubly linked list
+	 * Adds pointers to buffer desc to allow it to be used as doubly linked list
 	 */
 	struct BufferDesc *prev;
 	struct BufferDesc *next;

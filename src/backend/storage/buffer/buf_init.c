@@ -110,7 +110,7 @@ InitBufferPool(void)
 	}
 	else
 	{
-		int			i;
+		int	i;
 
 		/*
 		 * Initialize all the buffer headers.
@@ -134,8 +134,10 @@ InitBufferPool(void)
 
 			/*
 			 * Qua Thomas
-			 * This codes connects the linked list with all of the buffers
+			 * This codes connects the linked list with all of the available buffers
 			 * This makes sense since all of the buffers start as free
+			 * 
+			 * Assumption starts connecting at the second buffer to prevent seg fault
 			 */
 			if(i != 0)
 			{
@@ -145,9 +147,6 @@ InitBufferPool(void)
 			}
 
 
-
-			// elog(LOG, "\n\n\nINITIALIZED BUFFER: %d\n\n\n", buf->buf_id);
-
 			LWLockInitialize(BufferDescriptorGetContentLock(buf),
 							 LWTRANCHE_BUFFER_CONTENT);
 
@@ -155,13 +154,6 @@ InitBufferPool(void)
 							 LWTRANCHE_BUFFER_IO_IN_PROGRESS);
 		}
 
-		// BufferDesc *temp = GetBufferDescriptor(1);
-		// elog(LOG,"\n\n\n\n\n------------------------\nQueue Printout Here");
-		// while(temp != NULL)
-		// {
-		// 	elog(LOG, "BUFFER: %d ------> %d", temp->prev->buf_id , temp->buf_id);
-		// 	temp= temp->next;
-		// }
 
 		/* Correct last entry of linked list */
 		GetBufferDescriptor(NBuffers - 1)->freeNext = FREENEXT_END_OF_LIST;

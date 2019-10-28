@@ -1625,14 +1625,6 @@ PinBuffer(BufferDesc *buf, BufferAccessStrategy strategy)
 		result = true;
 	}
 
-	/*
-	 *Qua Thomas
-	 * Test if the the item is in the free list, if it is log
-	 * don't worry about removing since it is handled by strategy get buffer
-	 */ 
-	//  if(ref->refcount == 0)
-		//  elog(LOG, "Get buf %d", buf->buf_id);
-	
 	ref->refcount++;
 	Assert(ref->refcount > 0);
 	ResourceOwnerRememberBuffer(CurrentResourceOwner, b);
