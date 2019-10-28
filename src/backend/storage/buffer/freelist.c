@@ -444,21 +444,23 @@ StrategyFreeBuffer(BufferDesc *buf)
 	 */
 
 	BufferDesc *cursor = StrategyControl->q_front;
+	bool inListAlready = false;
 	while(cursor != NULL)
 	{
 		// If buffer is already in the free list then remove it
 		if(cursor->buf_id == buf->buf_id )
 		{
-			if(cursor->prev == NULL)
-			{
-				StrategyControl->q_front = StrategyControl->q_front->next;
-			}
-			else
-			{
-				cursor->prev->next = cursor->next;
-			}
-			
 
+			// elog(LOG, "\nLOOK HERE==============\n%d was already in the free list, so don't readd it", buf->buf_id);
+			// if(cursor->prev == NULL)
+			// {
+			// 	StrategyControl->q_front = StrategyControl->q_front->next;
+			// }
+			// else
+			// {
+			// 	cursor->prev->next = cursor->next;
+			// }
+			inListAlready = true;
 		}
 
 		cursor = cursor->next;
@@ -466,13 +468,17 @@ StrategyFreeBuffer(BufferDesc *buf)
 	// local_buf_state = LockBufHdr(buf);
 	// if (BUF_STATE_GET_REFCOUNT(local_buf_state) == 0)
 	// {
-		elog(LOG, "Add buf %d", buf->buf_id);
-		// if(StrategyControl->q_back != NULL)
-			// elog(LOG, "%d is at the back of the queue!!\n\n", StrategyControl->q_back->buf_id);
-		buf->next = NULL;
-		buf->prev = StrategyControl->q_back;
-		StrategyControl->q_back->next = buf;
-		StrategyControl->q_back = StrategyControl->q_back->next;
+		if(!inListAlready)
+		{
+			elog(LOG, "Add buf %d", buf->buf_id);
+			// if(StrategyControl->q_back != NULL)
+				// elog(LOG, "%d is at the back of the queue!!\n\n", StrategyControl->q_back->buf_id);
+			buf->next = NULL;
+			buf->prev = StrategyControl->q_back;
+			StrategyControl->q_back->next = buf;
+			StrategyControl->q_back = StrategyControl->q_back->next;
+
+		}
 
 	// }
 	// UnlockBufHdr(buf, local_buf_state);
